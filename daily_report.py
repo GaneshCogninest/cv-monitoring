@@ -24,20 +24,27 @@ from config import Config
 from metrics_collector import MetricsCollector
 from email_sender import EmailSender
 
-# Setup logging
+# Setup logging — use root logger directly to override any handlers
+# set by imported modules (metrics_collector, email_sender, etc.)
 log_dir = Path(Config.LOG_DIR)
 log_dir.mkdir(exist_ok=True)
 
 log_file = log_dir / f"daily_report_{datetime.now().strftime('%Y%m%d')}.log"
 
-logging.basicConfig(
-    level=getattr(logging, Config.LOG_LEVEL),
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_file),
-        logging.StreamHandler()
-    ]
-)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+file_handler = logging.FileHandler(log_file)
+file_handler.setFormatter(formatter)
+
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+
+root_logger = logging.getLogger()
+root_logger.setLevel(getattr(logging, Config.LOG_LEVEL))
+root_logger.handlers.clear()   # remove handlers set by imported modules
+root_logger.addHandler(file_handler)
+root_logger.addHandler(console_handler)
+
 logger = logging.getLogger(__name__)
 
 
