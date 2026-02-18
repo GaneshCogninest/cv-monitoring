@@ -1,0 +1,12 @@
+# CV Monitoring System - Python Dependencies
+# Install: pip install -r requirements.txt
+
+# Database connectivity
+mysql-connector-python==8.3.0
+
+# Environment variable management
+python-dotenv==1.0.0
+
+# Additional utilities (if needed)
+# pandas==2.1.4  # Uncomment if using for data analysis
+# tabulate==0.9.0  # Uncomment if generating text tables
