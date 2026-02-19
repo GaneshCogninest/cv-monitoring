@@ -102,12 +102,20 @@ class MetricsCollector:
                 metrics['cvs_insertion_failed']
             )
 
-            # Calculate success rate
-            total_received = metrics['cvs_received']
-            if total_received > 0:
+            # Calculate success rate based on COMPLETED CVs only
+            # (success + failed), ignoring still-in-progress CVs
+            total_completed = (
+                metrics['cvs_parsed_success'] +
+                metrics['cvs_parsing_failed'] +
+                metrics['cvs_insertion_failed']
+            )
+            if total_completed > 0:
                 metrics['success_rate'] = (
-                    metrics['cvs_parsed_success'] / total_received * 100
+                    metrics['cvs_parsed_success'] / total_completed * 100
                 )
+            elif metrics['cvs_received'] > 0:
+                # CVs received but none completed yet → still in progress
+                metrics['success_rate'] = 100.0
 
             # Get failed email details
             failed_query = """

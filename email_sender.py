@@ -53,7 +53,13 @@ class EmailSender:
         pipeline = report_data.get('pipeline_status', {})
 
         # Determine status emoji and color
-        if success_rate >= 95:
+        # Rule: if NO failures → always Green regardless of success rate
+        # (remaining CVs may still be in-progress, not failed)
+        if total_failed == 0:
+            status_emoji = "🟢"
+            status_color = "#28a745"
+            status_text = "All Good - No Failures"
+        elif success_rate >= 95:
             status_emoji = "🟢"
             status_color = "#28a745"
             status_text = "Excellent"
