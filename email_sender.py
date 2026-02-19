@@ -291,6 +291,8 @@ class EmailSender:
             msg = MIMEMultipart('alternative')
             msg['From'] = self.email_from
             msg['To'] = self.email_to
+            if Config.EMAIL_CC:
+                msg['Cc'] = Config.EMAIL_CC
             msg['Subject'] = (
                 f"{Config.REPORT_SUBJECT_PREFIX} - "
                 f"{report_data.get('report_date', 'Unknown')}"
