@@ -48,6 +48,7 @@ class EmailSender:
         cvs_parsing_failed = report_data.get('cvs_parsing_failed', 0)
         cvs_insertion_failed = report_data.get('cvs_insertion_failed', 0)
         total_failed = report_data.get('total_failed', 0)
+        cvs_in_progress = report_data.get('cvs_in_progress', 0)
         success_rate = report_data.get('success_rate', 0)
         failed_emails = report_data.get('failed_emails', [])
         pipeline = report_data.get('pipeline_status', {})
@@ -185,6 +186,12 @@ class EmailSender:
                                     border-left: 4px solid #4CAF50; padding: 15px; border-radius: 4px;">
                             <div style="font-size: 14px; color: #666; margin-bottom: 5px;">Successfully Parsed</div>
                             <div style="font-size: 28px; font-weight: bold; color: #4CAF50;">{cvs_parsed:,}</div>
+                        </div>
+
+                        <div style="flex: 1; min-width: 200px; background-color: #fff3e0;
+                                    border-left: 4px solid #FF9800; padding: 15px; border-radius: 4px;">
+                            <div style="font-size: 14px; color: #666; margin-bottom: 5px;">Still In Progress</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #FF9800;">{cvs_in_progress:,}</div>
                         </div>
 
                         <div style="flex: 1; min-width: 200px; background-color: #ffebee;

@@ -66,6 +66,7 @@ class MetricsCollector:
                 'cvs_parsing_failed': 0,
                 'cvs_insertion_failed': 0,
                 'total_failed': 0,
+                'cvs_in_progress': 0,
                 'success_rate': 0.0,
                 'failed_emails': []
             }
@@ -116,6 +117,14 @@ class MetricsCollector:
             elif metrics['cvs_received'] > 0:
                 # CVs received but none completed yet → still in progress
                 metrics['success_rate'] = 100.0
+
+            # Calculate in-progress CVs
+            # (received but not yet parsed success OR failed = still in pipeline)
+            metrics['cvs_in_progress'] = max(0,
+                metrics['cvs_received'] -
+                metrics['cvs_parsed_success'] -
+                metrics['total_failed']
+            )
 
             # Get failed email details
             failed_query = """
