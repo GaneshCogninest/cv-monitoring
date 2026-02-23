@@ -68,7 +68,10 @@ class MetricsCollector:
                 'total_failed': 0,
                 'cvs_in_progress': 0,
                 'success_rate': 0.0,
-                'failed_emails': []
+                'failed_emails': [],
+                'activity_updated': 0,
+                'activity_update_failed': 0,
+                'failed_activity_updates': []
             }
 
             # Get count for each event type
@@ -95,6 +98,10 @@ class MetricsCollector:
                     metrics['cvs_parsing_failed'] = count
                 elif event_type == 'cv_insertion_failed':
                     metrics['cvs_insertion_failed'] = count
+                elif event_type == 'activity_updated':
+                    metrics['activity_updated'] = count
+                elif event_type == 'activity_update_failed':
+                    metrics['activity_update_failed'] = count
 
             # Calculate total failed
             metrics['total_failed'] = (
@@ -140,6 +147,21 @@ class MetricsCollector:
                 (yesterday, Config.MAX_FAILED_EMAILS_IN_REPORT)
             )
             metrics['failed_emails'] = cursor.fetchall()
+
+            # Get failed activity update details
+            failed_activity_query = """
+                SELECT email, event_type, error_message, timestamp
+                FROM cv_processing_log
+                WHERE DATE(timestamp) = %s
+                AND event_type = 'activity_update_failed'
+                ORDER BY timestamp DESC
+                LIMIT %s
+            """
+            cursor.execute(
+                failed_activity_query,
+                (yesterday, Config.MAX_FAILED_EMAILS_IN_REPORT)
+            )
+            metrics['failed_activity_updates'] = cursor.fetchall()
 
             return metrics
 
@@ -237,7 +259,9 @@ class MetricsCollector:
 
         logger.info(f"Metrics collected: {metrics['cvs_received']} CVs received, "
                    f"{metrics['cvs_parsed_success']} successful, "
-                   f"{metrics['total_failed']} failed")
+                   f"{metrics['total_failed']} failed, "
+                   f"{metrics['activity_updated']} activity updates, "
+                   f"{metrics['activity_update_failed']} activity update failures")
 
         return report_data
 

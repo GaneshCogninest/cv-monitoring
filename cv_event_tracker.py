@@ -78,7 +78,9 @@ def log_cv_event(
             'cv_rejected',
             'cv_parsed_success',
             'cv_parsing_failed',
-            'cv_insertion_failed'
+            'cv_insertion_failed',
+            'activity_updated',
+            'activity_update_failed'
         ]
         if event_type not in valid_events:
             logger.error(

@@ -75,6 +75,8 @@ def main():
         logger.info(f"   - CVs Parsed: {report_data['cvs_parsed_success']}")
         logger.info(f"   - Total Failed: {report_data['total_failed']}")
         logger.info(f"   - Success Rate: {report_data['success_rate']:.2f}%")
+        logger.info(f"   - Activity Updates: {report_data['activity_updated']}")
+        logger.info(f"   - Activity Update Failures: {report_data['activity_update_failed']}")
 
         # Step 3: Generate and send email
         logger.info("\n[3/4] Generating and sending email report...")

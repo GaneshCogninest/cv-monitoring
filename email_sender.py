@@ -52,6 +52,10 @@ class EmailSender:
         success_rate = report_data.get('success_rate', 0)
         failed_emails = report_data.get('failed_emails', [])
         pipeline = report_data.get('pipeline_status', {})
+        activity_updated = report_data.get('activity_updated', 0)
+        activity_update_failed = report_data.get('activity_update_failed', 0)
+        activity_total = activity_updated + activity_update_failed
+        failed_activity_updates = report_data.get('failed_activity_updates', [])
 
         # Determine status emoji and color
         # Rule: if NO failures → always Green regardless of success rate
@@ -133,6 +137,47 @@ class EmailSender:
             <div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px;
                         padding: 15px; margin-top: 30px; color: #155724;">
                 <strong>✅ No failures recorded yesterday!</strong>
+            </div>
+            """
+
+        # Generate failed activity updates table
+        if failed_activity_updates:
+            failed_activity_html = """
+            <h4 style="color: #dc3545; margin-top: 20px;">📋 Failed Activity Update Details</h4>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <thead>
+                    <tr style="background-color: #f8f9fa;">
+                        <th style="padding: 12px; border: 1px solid #dee2e6; text-align: left;">Email</th>
+                        <th style="padding: 12px; border: 1px solid #dee2e6; text-align: left;">Error Message</th>
+                        <th style="padding: 12px; border: 1px solid #dee2e6; text-align: left;">Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+            """
+            for row in failed_activity_updates[:Config.MAX_FAILED_EMAILS_IN_REPORT]:
+                email = row.get('email', 'N/A')
+                error_msg = row.get('error_message', 'No details available')
+                timestamp = row.get('timestamp', 'N/A')
+
+                if error_msg and len(error_msg) > 100:
+                    error_msg = error_msg[:100] + "..."
+
+                failed_activity_html += f"""
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; font-size: 13px;">{email}</td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; font-size: 13px; color: #dc3545;">{error_msg}</td>
+                        <td style="padding: 10px; border: 1px solid #dee2e6; font-size: 13px;">{timestamp}</td>
+                    </tr>
+                """
+            failed_activity_html += """
+                </tbody>
+            </table>
+            """
+        else:
+            failed_activity_html = """
+            <div style="background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px;
+                        padding: 12px; margin-top: 10px; color: #155724;">
+                <strong>✅ No activity update failures yesterday!</strong>
             </div>
             """
 
@@ -270,6 +315,39 @@ class EmailSender:
                         </tr>
                     </table>
 
+                </div>
+
+                <!-- Activity Updates Section -->
+                <div style="padding: 0 30px 30px 30px;">
+                    <h3 style="color: #495057; margin-top: 40px; margin-bottom: 20px;">
+                        🕐 UpdateActivity Summary
+                    </h3>
+
+                    <!-- Activity Summary Cards -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
+
+                        <div style="flex: 1; min-width: 180px; background-color: #e7f3ff;
+                                    border-left: 4px solid #2196F3; padding: 15px; border-radius: 4px;">
+                            <div style="font-size: 14px; color: #666; margin-bottom: 5px;">Total Requests</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #2196F3;">{activity_total:,}</div>
+                        </div>
+
+                        <div style="flex: 1; min-width: 180px; background-color: #e8f5e9;
+                                    border-left: 4px solid #4CAF50; padding: 15px; border-radius: 4px;">
+                            <div style="font-size: 14px; color: #666; margin-bottom: 5px;">Succeeded</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #4CAF50;">{activity_updated:,}</div>
+                        </div>
+
+                        <div style="flex: 1; min-width: 180px; background-color: #ffebee;
+                                    border-left: 4px solid #f44336; padding: 15px; border-radius: 4px;">
+                            <div style="font-size: 14px; color: #666; margin-bottom: 5px;">Failed</div>
+                            <div style="font-size: 28px; font-weight: bold; color: #f44336;">{activity_update_failed:,}</div>
+                        </div>
+
+                    </div>
+
+                    <!-- Failed Activity Details -->
+                    {failed_activity_html}
                 </div>
 
                 <!-- Footer -->
